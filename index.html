@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Career Coach — Honest ATS Optimizer</title>
+<style>
+  :root {
+    --bg: #0f1220;
+    --panel: #181c2e;
+    --panel-2: #1f2540;
+    --text: #e8eaf2;
+    --muted: #9aa3c0;
+    --accent: #5b8cff;
+    --good: #36c98c;
+    --warn: #f5a623;
+    --bad: #ff5d6c;
+    --border: #2a3157;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: radial-gradient(1200px 600px at 80% -10%, #1b2348, var(--bg));
+    color: var(--text);
+    line-height: 1.5;
+  }
+  header {
+    padding: 28px 24px 12px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  h1 { margin: 0 0 4px; font-size: 26px; letter-spacing: -0.02em; }
+  .sub { color: var(--muted); font-size: 14px; }
+  .ethics {
+    max-width: 1100px;
+    margin: 12px auto 0;
+    padding: 12px 16px;
+    background: rgba(54, 201, 140, 0.08);
+    border: 1px solid rgba(54, 201, 140, 0.35);
+    border-radius: 10px;
+    color: #bdeed7;
+    font-size: 13px;
+  }
+  main {
+    max-width: 1100px;
+    margin: 18px auto;
+    padding: 0 24px 60px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+  }
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+  }
+  .panel h2 { margin: 0 0 10px; font-size: 15px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; }
+  textarea {
+    width: 100%;
+    min-height: 230px;
+    resize: vertical;
+    background: var(--panel-2);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+    font-size: 13px;
+    font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+  }
+  textarea:focus { outline: none; border-color: var(--accent); }
+  .row { display: flex; gap: 10px; align-items: center; margin-top: 10px; flex-wrap: wrap; }
+  label.file {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 13px; color: var(--muted); cursor: pointer;
+    border: 1px dashed var(--border); border-radius: 8px; padding: 8px 12px;
+  }
+  label.file:hover { border-color: var(--accent); color: var(--text); }
+  input[type="file"] { display: none; }
+  .actions { grid-column: 1 / -1; display: flex; justify-content: center; gap: 12px; }
+  button.primary {
+    background: linear-gradient(180deg, #6b97ff, #4a78ff);
+    color: white; border: none; border-radius: 10px;
+    padding: 12px 26px; font-size: 15px; font-weight: 600; cursor: pointer;
+  }
+  button.primary:hover { filter: brightness(1.07); }
+  button.ghost {
+    background: transparent; color: var(--muted);
+    border: 1px solid var(--border); border-radius: 10px;
+    padding: 12px 18px; font-size: 14px; cursor: pointer;
+  }
+  #results { grid-column: 1 / -1; display: none; }
+  .results-grid { display: grid; grid-template-columns: 280px 1fr; gap: 18px; }
+  .score-card { text-align: center; }
+  .gauge { position: relative; width: 180px; height: 180px; margin: 6px auto 0; }
+  .gauge svg { transform: rotate(-90deg); }
+  .gauge .num { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .gauge .num b { font-size: 40px; }
+  .gauge .num span { font-size: 12px; color: var(--muted); }
+  .pill-group { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+  .pill {
+    font-size: 12px; padding: 5px 10px; border-radius: 999px;
+    border: 1px solid var(--border); background: var(--panel-2);
+  }
+  .pill.good { border-color: rgba(54,201,140,.5); color: #aef0d2; }
+  .pill.bad { border-color: rgba(255,93,108,.5); color: #ffc2c8; }
+  .block { margin-top: 18px; }
+  .block h3 { margin: 0 0 8px; font-size: 14px; }
+  .muted { color: var(--muted); font-size: 13px; }
+  ul.tips { margin: 8px 0 0; padding-left: 18px; }
+  ul.tips li { margin-bottom: 8px; font-size: 13px; }
+  ul.tips code { background: var(--panel-2); padding: 1px 6px; border-radius: 6px; color: #cdd6ff; }
+  .legend { font-size: 12px; color: var(--muted); margin-top: 6px; }
+  footer { text-align: center; color: var(--muted); font-size: 12px; padding: 0 24px 30px; }
+  /* Tabs */
+  .tabs {
+    max-width: 1100px; margin: 18px auto 0; padding: 0 24px;
+    display: flex; gap: 8px; flex-wrap: wrap;
+  }
+  .tab-btn {
+    background: var(--panel); color: var(--muted);
+    border: 1px solid var(--border); border-bottom: none;
+    border-radius: 10px 10px 0 0; padding: 11px 18px;
+    font-size: 14px; font-weight: 600; cursor: pointer;
+  }
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active { background: var(--panel-2); color: var(--text); border-color: var(--accent); }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: grid; }
+  .single.tab-panel.active { display: block; }
+  .single .panel { margin-bottom: 16px; }
+  .out-box {
+    background: var(--panel-2); border:1px solid var(--border); border-radius:10px;
+    padding:14px; white-space:pre-wrap;
+    font-family: ui-monospace,'Cascadia Code',Consolas,monospace; font-size:13px;
+    max-height:460px; overflow:auto;
+  }
+  select, input[type="text"] {
+    background: var(--panel-2); color: var(--text); border:1px solid var(--border);
+    border-radius:8px; padding:9px 11px; font-size:13px; width:100%;
+  }
+  select:focus, input[type="text"]:focus { outline:none; border-color: var(--accent); }
+  /* Diff */
+  .diff-add { background: rgba(54,201,140,.18); color:#aef0d2; border-radius:3px; }
+  .diff-del { background: rgba(255,93,108,.16); color:#ffb3ba; text-decoration: line-through; border-radius:3px; }
+  .diff-line-add { display:block; background: rgba(54,201,140,.10); border-left:3px solid var(--good); padding-left:8px; }
+  .diff-line-del { display:block; background: rgba(255,93,108,.08); border-left:3px solid var(--bad); padding-left:8px; }
+  @media (max-width: 860px) {
+    main { grid-template-columns: 1fr; }
+    .results-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+  <header>
+    <h1>Career Coach <span style="color:var(--accent)">·</span> Free &amp; Private</h1>
+    <div class="sub">Three honest coaches for your job search — all running 100% in your browser.</div>
+  </header>
+
+  <div class="ethics">
+    <strong>Private by design:</strong> everything runs locally in your browser. Your resume, LinkedIn, and
+    answers never leave this page — no servers, no accounts, no AI fees. Nothing here fabricates experience or
+    hides text; it helps you present <em>what's true</em> in the strongest, job-specific way.
+  </div>
+
+  <nav class="tabs" role="tablist">
+    <button class="tab-btn active" data-tab="resume" role="tab">📄 Resume Optimizer</button>
+    <button class="tab-btn" data-tab="interview" role="tab">🎤 Interview Coach</button>
+    <button class="tab-btn" data-tab="referral" role="tab">🤝 Referral Coach</button>
+  </nav>
+
+  <main id="tab-resume" class="tab-panel active">
+    <section class="panel">
+      <h2>Your Resume</h2>
+      <textarea id="resume" placeholder="Paste your resume text here, or upload a .txt / .pdf file below..."></textarea>
+      <div class="row">
+        <label class="file">
+          📄 Upload resume (.txt or .pdf)
+          <input type="file" id="resumeFile" accept=".txt,.pdf" />
+        </label>
+        <span class="muted" id="resumeFileName"></span>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Job Description</h2>
+      <textarea id="jd" placeholder="Paste the full job posting here..."></textarea>
+      <div class="row">
+        <label class="file">
+          📄 Upload posting (.txt)
+          <input type="file" id="jdFile" accept=".txt" />
+        </label>
+        <span class="muted" id="jdFileName"></span>
+      </div>
+    </section>
+
+    <div class="actions">
+      <button class="primary" id="analyzeBtn">Analyze match</button>
+      <button class="ghost" id="sampleBtn">Load sample</button>
+    </div>
+
+    <div class="actions" style="margin-top:-6px">
+      <label class="file" style="border-style:solid;cursor:pointer" title="Runs a small AI model entirely in your browser using WebGPU. First use downloads the model (~1–2 GB cached afterward). 100% free and private — nothing is sent to any server.">
+        <input type="checkbox" id="llmToggle" style="accent-color:var(--accent)" />
+        🧠 Enable on-device AI rephrasing <span class="muted">(free &amp; private, runs in your browser)</span>
+      </label>
+    </div>
+
+    <section class="panel" id="results">
+      <div class="results-grid">
+        <div class="score-card panel" style="background:var(--panel-2)">
+          <h3 style="margin-top:4px">Match score</h3>
+          <div class="gauge">
+            <svg width="180" height="180" viewBox="0 0 180 180">
+              <circle cx="90" cy="90" r="78" fill="none" stroke="#2a3157" stroke-width="14"/>
+              <circle id="gaugeArc" cx="90" cy="90" r="78" fill="none" stroke="var(--accent)"
+                      stroke-width="14" stroke-linecap="round" stroke-dasharray="490" stroke-dashoffset="490"/>
+            </svg>
+            <div class="num"><b id="scoreNum">0%</b><span id="scoreLabel">keywords covered</span></div>
+          </div>
+          <div class="legend">Based on relevant keywords from the job description that appear in your resume.</div>
+        </div>
+
+        <div>
+          <div class="block">
+            <h3>Missing keywords <span class="muted">(consider adding — only if true for you)</span></h3>
+            <div class="pill-group" id="missing"></div>
+          </div>
+          <div class="block">
+            <h3>Already covered ✓</h3>
+            <div class="pill-group" id="covered"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="block">
+        <h3>Suggestions</h3>
+        <ul class="tips" id="tips"></ul>
+      </div>
+
+      <div class="block">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+          <h3 style="margin:0">Tailored resume <span class="muted">(your real content, reordered &amp; aligned to this job)</span></h3>
+          <div style="display:flex;gap:8px">
+            <button class="ghost" id="diffBtn" style="padding:8px 14px">🔍 Show changes</button>
+            <button class="ghost" id="aiBtn" style="padding:8px 14px;display:none">✨ AI-enhance bullets (local)</button>
+            <button class="ghost" id="copyBtn" style="padding:8px 14px">Copy tailored text</button>
+          </div>
+        </div>
+        <div class="legend" id="aiStatus" style="margin-bottom:8px;display:none"></div>
+        <div class="legend" style="margin-bottom:8px">Nothing is invented. Bullets are reordered by relevance, a tailored summary/skills line is built only from skills you already have, and JD-matching terms are <span style="color:var(--good)">highlighted</span>. Review before using.</div>
+        <div class="panel" id="tailored" style="background:var(--panel-2);white-space:pre-wrap;font-family:ui-monospace,'Cascadia Code',Consolas,monospace;font-size:13px;max-height:460px;overflow:auto"></div>
+        <div class="panel" id="diffView" style="display:none;background:var(--panel-2);white-space:pre-wrap;font-family:ui-monospace,'Cascadia Code',Consolas,monospace;font-size:13px;max-height:460px;overflow:auto"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===================== INTERVIEW COACH ===================== -->
+  <main id="tab-interview" class="tab-panel single">
+    <section class="panel">
+      <h2>Interview Coach</h2>
+      <div class="legend" style="margin-bottom:12px">Landed the interview? Paste the job description (and optionally your resume) to generate likely questions, a STAR answer builder, and smart questions to ask them. All local — nothing leaves your browser.</div>
+      <div class="row" style="margin:0 0 10px">
+        <div style="flex:1;min-width:220px">
+          <label class="muted" style="font-size:12px">Target role / title</label>
+          <input type="text" id="ivRole" placeholder="e.g. Digital Marketing Specialist" />
+        </div>
+        <div style="flex:1;min-width:220px">
+          <label class="muted" style="font-size:12px">Interview type</label>
+          <select id="ivType">
+            <option value="mixed">Mixed (behavioral + role)</option>
+            <option value="behavioral">Behavioral only</option>
+            <option value="technical">Technical / role-specific</option>
+            <option value="screening">Recruiter screening</option>
+          </select>
+        </div>
+      </div>
+      <label class="muted" style="font-size:12px">Job description</label>
+      <textarea id="ivJd" placeholder="Paste the job description here..."></textarea>
+      <details style="margin-top:10px">
+        <summary class="muted" style="cursor:pointer;font-size:13px">+ Add your resume for more personalized prep (optional)</summary>
+        <textarea id="ivResume" placeholder="Paste your resume (optional)..." style="margin-top:8px;min-height:140px"></textarea>
+      </details>
+    </section>
+
+    <div class="actions">
+      <button class="primary" id="ivBtn">Generate interview prep</button>
+      <button class="ghost" id="ivSampleBtn">Load sample</button>
+    </div>
+
+    <section class="panel" id="ivResults" style="display:none">
+      <div class="block">
+        <h3>Likely questions</h3>
+        <ul class="tips" id="ivQuestions"></ul>
+      </div>
+      <div class="block">
+        <h3>STAR answer builder</h3>
+        <div class="legend" style="margin-bottom:8px">Use this skeleton to shape a real story for each behavioral question. Keep it true; just structure it well.</div>
+        <div class="out-box" id="ivStar"></div>
+      </div>
+      <div class="block">
+        <h3>Smart questions to ask them</h3>
+        <ul class="tips" id="ivAsk"></ul>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===================== REFERRAL COACH ===================== -->
+  <main id="tab-referral" class="tab-panel single">
+    <section class="panel">
+      <h2>Referral Coach</h2>
+      <div class="legend" style="margin-bottom:12px">Referrals are the #1 way to get interviews. Paste your LinkedIn profile text and the role/company you're targeting, and get personalized, honest outreach drafts — for connections, alumni, and recruiters.</div>
+      <label class="muted" style="font-size:12px">Your LinkedIn profile text <span style="opacity:.7">(open your profile → select &amp; copy your headline + About + experience)</span></label>
+      <textarea id="rfProfile" placeholder="Paste your LinkedIn 'About' and experience here..."></textarea>
+      <div class="row" style="margin-top:10px">
+        <div style="flex:1;min-width:200px">
+          <label class="muted" style="font-size:12px">Target company</label>
+          <input type="text" id="rfCompany" placeholder="e.g. Acme Corp" />
+        </div>
+        <div style="flex:1;min-width:200px">
+          <label class="muted" style="font-size:12px">Target role</label>
+          <input type="text" id="rfRole" placeholder="e.g. Product Marketing Manager" />
+        </div>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <div style="flex:1;min-width:200px">
+          <label class="muted" style="font-size:12px">Contact's name (optional)</label>
+          <input type="text" id="rfName" placeholder="e.g. Sam" />
+        </div>
+        <div style="flex:1;min-width:200px">
+          <label class="muted" style="font-size:12px">Your relationship</label>
+          <select id="rfRel">
+            <option value="cold">No prior connection (cold)</option>
+            <option value="alumni">Same school / alumni</option>
+            <option value="former">Former coworker</option>
+            <option value="2nd">Mutual connection</option>
+            <option value="recruiter">Company recruiter</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <div class="actions">
+      <button class="primary" id="rfBtn">Generate outreach drafts</button>
+      <button class="ghost" id="rfSampleBtn">Load sample</button>
+    </div>
+
+    <section class="panel" id="rfResults" style="display:none">
+      <div class="block">
+        <h3>Connection request <span class="muted">(300-char limit)</span>
+          <button class="ghost" data-copy="rfConnect" style="padding:4px 10px;font-size:12px;float:right">Copy</button>
+        </h3>
+        <div class="out-box" id="rfConnect"></div>
+      </div>
+      <div class="block">
+        <h3>Referral request message
+          <button class="ghost" data-copy="rfMessage" style="padding:4px 10px;font-size:12px;float:right">Copy</button>
+        </h3>
+        <div class="out-box" id="rfMessage"></div>
+      </div>
+      <div class="block">
+        <h3>Follow-up (if no reply in ~5 days)
+          <button class="ghost" data-copy="rfFollow" style="padding:4px 10px;font-size:12px;float:right">Copy</button>
+        </h3>
+        <div class="out-box" id="rfFollow"></div>
+      </div>
+      <div class="block">
+        <h3>Tips</h3>
+        <ul class="tips" id="rfTips"></ul>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    100% local &amp; free — your data never leaves this page. No servers, no tracking, no AI fees.
+  </footer>
+
+<script>
+// ---- Stopwords: common words we never treat as "skills" ----
+const STOP = new Set(("a an the and or but if then else for to of in on at by with without from as is are was were be been being this that these those you your we our they their he she it its i me my will would can could should may might must do does did done have has had not no yes will your role roles work working works experience years year team teams strong ability able help across within using used use new etc per via job description candidate candidates position positions company companies who what when where why how also more most over under into out about up down all any each other than such per into our we us you’ll you'll we’re we're you’re you're including include includes etc preferred required requirements responsibilities qualifications plus skills skill knowledge ").split(/\s+/));
+
+// Multi-word skills we want to detect as single phrases
+const PHRASES = [
+  "machine learning","data analysis","data science","project management","product management",
+  "customer service","problem solving","time management","public speaking","continuous integration",
+  "continuous delivery","unit testing","version control","object oriented","rest api","ci/cd",
+  "user experience","user interface","quality assurance","cross functional","cross-functional",
+  "natural language processing","deep learning","cloud computing","front end","back end","full stack",
+  "agile","scrum","kanban","stakeholder management","business development","account management",
+  "google analytics","power bi","microsoft excel","social media","content marketing","sql server"
+];
+
+const TECH_KEEP = new Set(["c","c++","c#","r","go","sql","aws","gcp","css","html","api","etl","seo","sem","ux","ui","qa","ml","ai","js","ts"]);
+
+function normalize(t){ return (t||"").toLowerCase().replace(/[^a-z0-9+#./ -]/g," ").replace(/\s+/g," ").trim(); }
+
+function extractKeywords(text){
+  const norm = " " + normalize(text) + " ";
+  const found = new Map(); // keyword -> count
+  // phrases first
+  PHRASES.forEach(p => {
+    const re = new RegExp("\\b" + p.replace(/[.*+?^${}()|[\]\\]/g,"\\$&") + "\\b","g");
+    const m = norm.match(re);
+    if(m) found.set(p, (found.get(p)||0) + m.length);
+  });
+  // single tokens
+  norm.split(" ").forEach(tok => {
+    tok = tok.replace(/^[-.]+|[-.]+$/g,"");
+    if(!tok) return;
+    if(TECH_KEEP.has(tok)){ found.set(tok,(found.get(tok)||0)+1); return; }
+    if(tok.length < 3) return;
+    if(STOP.has(tok)) return;
+    if(/^\d+$/.test(tok)) return;
+    found.set(tok,(found.get(tok)||0)+1);
+  });
+  return found;
+}
+
+function topJDKeywords(jdMap, limit){
+  // weight by frequency, keep most relevant
+  return [...jdMap.entries()]
+    .sort((a,b)=> b[1]-a[1] || a[0].localeCompare(b[0]))
+    .slice(0, limit)
+    .map(e=>e[0]);
+}
+
+function analyze(){
+  const resume = document.getElementById("resume").value;
+  const jd = document.getElementById("jd").value;
+  if(resume.trim().length < 20 || jd.trim().length < 20){
+    alert("Please add both your resume text and the job description (at least a few sentences each).");
+    return;
+  }
+  const resumeMap = extractKeywords(resume);
+  const jdMap = extractKeywords(jd);
+  const jdKeys = topJDKeywords(jdMap, 40);
+
+  const covered = [], missing = [];
+  jdKeys.forEach(k => { (resumeMap.has(k) ? covered : missing).push(k); });
+
+  const score = jdKeys.length ? Math.round((covered.length / jdKeys.length) * 100) : 0;
+
+  // Render score gauge
+  const circ = 490;
+  document.getElementById("gaugeArc").style.strokeDashoffset = circ - (circ * score/100);
+  document.getElementById("gaugeArc").setAttribute("stroke",
+    score >= 75 ? "#36c98c" : score >= 45 ? "#f5a623" : "#ff5d6c");
+  document.getElementById("scoreNum").textContent = score + "%";
+
+  const renderPills = (id, arr, cls) => {
+    const el = document.getElementById(id);
+    el.innerHTML = arr.length ? "" : '<span class="muted">None 🎉</span>';
+    arr.forEach(k => {
+      const s = document.createElement("span");
+      s.className = "pill " + cls;
+      s.textContent = k;
+      el.appendChild(s);
+    });
+  };
+  renderPills("missing", missing, "bad");
+  renderPills("covered", covered, "good");
+
+  // Honest suggestions
+  const tips = [];
+  if(missing.length){
+    tips.push("Review the <b>missing keywords</b>. For each one you <em>genuinely</em> have experience with, weave it into a real bullet point using the job's own wording (ATS matches on exact terms).");
+    tips.push("Example rewrite: instead of <code>“Built dashboards”</code>, write <code>“Built " + (missing.find(m=>!TECH_KEEP.has(m)&&m.length>3) || "reporting") + " dashboards in [tool]”</code> if that's accurate.");
+  } else {
+    tips.push("Great coverage! Your resume already reflects the job's key terms.");
+  }
+  tips.push("Put the most important matching skills in a visible <b>Skills</b> section and in your top 2–3 bullet points — recruiters and ATS both weight the top of the page.");
+  tips.push("Mirror the job title or seniority language if it honestly fits (e.g., the posting says <code>“Data Analyst”</code> — use that exact phrase in your summary).");
+  tips.push("Never add hidden/white text or keyword-stuffed lists — modern ATS strip formatting and flag it, and recruiters reject it on sight.");
+  tips.push("Quantify where you can (numbers, %, scale) — it helps you stand out once a human reads it.");
+  document.getElementById("tips").innerHTML = tips.map(t=>"<li>"+t+"</li>").join("");
+
+  buildTailored(resume, jdMap, jdKeys, covered);
+
+  document.getElementById("results").style.display = "block";
+  document.getElementById("results").scrollIntoView({behavior:"smooth"});
+}
+
+// ---- Honest tailoring: reorder real bullets + build summary/skills from covered skills ----
+function escapeHtml(s){ return s.replace(/[&<>]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])); }
+
+function highlight(line, keys){
+  let html = escapeHtml(line);
+  // longest keys first so phrases win over sub-tokens
+  [...keys].sort((a,b)=>b.length-a.length).forEach(k=>{
+    const re = new RegExp("\\b(" + k.replace(/[.*+?^${}()|[\]\\]/g,"\\$&") + ")\\b","gi");
+    html = html.replace(re, '<span style="color:var(--good)">$1</span>');
+  });
+  return html;
+}
+
+function lineScore(line, jdMap){
+  const toks = extractKeywords(line);
+  let score = 0;
+  toks.forEach((cnt,k)=>{ if(jdMap.has(k)) score += jdMap.get(k); });
+  return score;
+}
+
+function isBullet(line){ return /^\s*([-*•·]|\d+[.)])\s+/.test(line); }
+function isHeader(line){
+  const t = line.trim();
+  if(!t || isBullet(line)) return false;
+  // short, no trailing period, mostly a label
+  return t.length <= 40 && !/[.!?]$/.test(t) && t.split(/\s+/).length <= 5;
+}
+
+function buildTailored(resumeText, jdMap, jdKeys, covered){
+  const lines = resumeText.replace(/\r/g,"").split("\n");
+
+  // Group lines into sections; within a section, sort bullets by relevance (stable).
+  const out = [];
+  let buffer = []; // {line, score, bullet}
+  const flush = () => {
+    if(!buffer.length) return;
+    const bullets = buffer.filter(b=>b.bullet);
+    const others  = buffer.filter(b=>!b.bullet);
+    bullets.map((b,i)=>b._i=i);
+    bullets.sort((a,b)=> b.score - a.score || a._i - b._i);
+    // keep non-bullet lines in place at top, then sorted bullets
+    others.forEach(o=>out.push(o.line));
+    bullets.forEach(b=>out.push(b.line));
+    buffer = [];
+  };
+
+  lines.forEach(line=>{
+    if(isHeader(line)){ flush(); out.push(line); return; }
+    buffer.push({ line, score: lineScore(line, jdMap), bullet: isBullet(line) });
+  });
+  flush();
+
+  // Build a tailored Summary + Skills line from skills the user ALREADY has (covered only).
+  const skillLine = covered.slice(0, 12).join(" · ");
+  const header = [];
+  if(covered.length){
+    header.push("PROFESSIONAL SUMMARY");
+    header.push("Candidate with demonstrated experience in " +
+      covered.slice(0,5).join(", ") + " — aligned to this role's core requirements.");
+    header.push("");
+    header.push("CORE SKILLS (matched to this job)");
+    header.push(skillLine);
+    header.push("");
+  }
+
+  const finalText = header.concat(out).join("\n").replace(/\n{3,}/g,"\n\n").trim();
+
+  const el = document.getElementById("tailored");
+  el.dataset.plain = finalText;
+  el.dataset.original = resumeText.replace(/\r/g,"").trim();
+  el.innerHTML = finalText.split("\n").map(l=>highlight(l, jdKeys)).join("\n");
+
+  // reset diff view when re-analyzed
+  const dv = document.getElementById("diffView");
+  if(dv){ dv.style.display = "none"; el.style.display = "block"; document.getElementById("diffBtn").textContent = "🔍 Show changes"; }
+}
+
+// ---- Before/after diff (line-level LCS) ----
+function lcsDiff(aLines, bLines){
+  const n = aLines.length, m = bLines.length;
+  const dp = Array.from({length:n+1}, ()=>new Array(m+1).fill(0));
+  for(let i=n-1;i>=0;i--)
+    for(let j=m-1;j>=0;j--)
+      dp[i][j] = aLines[i] === bLines[j] ? dp[i+1][j+1]+1 : Math.max(dp[i+1][j], dp[i][j+1]);
+  const res = [];
+  let i=0, j=0;
+  while(i<n && j<m){
+    if(aLines[i] === bLines[j]){ res.push({t:"same", line:bLines[j]}); i++; j++; }
+    else if(dp[i+1][j] >= dp[i][j+1]){ res.push({t:"del", line:aLines[i]}); i++; }
+    else { res.push({t:"add", line:bLines[j]}); j++; }
+  }
+  while(i<n){ res.push({t:"del", line:aLines[i++]}); }
+  while(j<m){ res.push({t:"add", line:bLines[j++]}); }
+  return res;
+}
+
+function renderDiff(){
+  const el = document.getElementById("tailored");
+  const original = (el.dataset.original || "").split("\n");
+  const tailored = (el.dataset.plain || "").split("\n");
+  const diff = lcsDiff(original, tailored);
+  const html = diff.map(d=>{
+    const safe = escapeHtml(d.line) || "&nbsp;";
+    if(d.t === "add") return '<span class="diff-line-add">+ ' + safe + '</span>';
+    if(d.t === "del") return '<span class="diff-line-del">- ' + safe + '</span>';
+    return '<span style="opacity:.75">  ' + safe + '</span>';
+  }).join("\n");
+  document.getElementById("diffView").innerHTML = html;
+}
+
+// ---- File handling ----
+function readTextFile(file, cb){
+  const r = new FileReader();
+  r.onload = e => cb(e.target.result);
+  r.readAsText(file);
+}
+
+async function readPdf(file, cb){
+  // Lazy-load pdf.js from CDN only when a PDF is chosen (needs internet for this one feature)
+  if(!window.pdfjsLib){
+    try {
+      await new Promise((res, rej) => {
+        const s = document.createElement("script");
+        s.src = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
+        s.onload = res; s.onerror = rej;
+        document.head.appendChild(s);
+      });
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+        "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+    } catch(err){
+      alert("Couldn't load the PDF reader (needs internet). Tip: open the PDF, copy the text, and paste it instead.");
+      return;
+    }
+  }
+  const buf = await file.arrayBuffer();
+  const pdf = await window.pdfjsLib.getDocument({data: buf}).promise;
+  let text = "";
+  for(let i=1;i<=pdf.numPages;i++){
+    const page = await pdf.getPage(i);
+    const content = await page.getTextContent();
+    text += content.items.map(it=>it.str).join(" ") + "\n";
+  }
+  cb(text);
+}
+
+document.getElementById("resumeFile").addEventListener("change", e=>{
+  const f = e.target.files[0]; if(!f) return;
+  document.getElementById("resumeFileName").textContent = f.name;
+  if(f.name.toLowerCase().endsWith(".pdf")) readPdf(f, t=>document.getElementById("resume").value = t);
+  else readTextFile(f, t=>document.getElementById("resume").value = t);
+});
+document.getElementById("jdFile").addEventListener("change", e=>{
+  const f = e.target.files[0]; if(!f) return;
+  document.getElementById("jdFileName").textContent = f.name;
+  readTextFile(f, t=>document.getElementById("jd").value = t);
+});
+
+document.getElementById("analyzeBtn").addEventListener("click", analyze);
+
+document.getElementById("diffBtn").addEventListener("click", ()=>{
+  const el = document.getElementById("tailored");
+  const dv = document.getElementById("diffView");
+  const btn = document.getElementById("diffBtn");
+  if(!el.dataset.plain){ alert("Run “Analyze match” first to generate a tailored resume."); return; }
+  const showingDiff = dv.style.display !== "none";
+  if(showingDiff){
+    dv.style.display = "none"; el.style.display = "block";
+    btn.textContent = "🔍 Show changes";
+  } else {
+    renderDiff();
+    dv.style.display = "block"; el.style.display = "none";
+    btn.textContent = "📄 Show tailored";
+  }
+});
+
+document.getElementById("copyBtn").addEventListener("click", ()=>{
+  const el = document.getElementById("tailored");
+  const txt = el.dataset.plain || el.textContent;
+  navigator.clipboard.writeText(txt).then(()=>{
+    const btn = document.getElementById("copyBtn");
+    const old = btn.textContent; btn.textContent = "Copied ✓";
+    setTimeout(()=>btn.textContent = old, 1500);
+  }).catch(()=>alert("Copy failed — select the text manually."));
+});
+
+document.getElementById("sampleBtn").addEventListener("click", ()=>{
+  document.getElementById("resume").value =
+`Jordan Lee — Marketing Coordinator
+- Managed social media calendar and grew Instagram following by 40%.
+- Created monthly email newsletters and tracked open rates in Excel.
+- Coordinated with design team on campaign assets and timelines.
+- Wrote blog content and basic landing pages in HTML.`;
+  document.getElementById("jd").value =
+`We are hiring a Digital Marketing Specialist.
+Responsibilities: manage social media channels, run content marketing campaigns,
+analyze performance with Google Analytics, improve SEO, and build email marketing flows.
+Required skills: social media, SEO, content marketing, Google Analytics, copywriting,
+A/B testing, and strong data analysis. Experience with project management tools a plus.`;
+});
+
+// ============================================================
+//  TABS
+// ============================================================
+document.querySelectorAll(".tab-btn").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
+    document.querySelectorAll(".tab-panel").forEach(p=>p.classList.remove("active"));
+    btn.classList.add("active");
+    document.getElementById("tab-" + btn.dataset.tab).classList.add("active");
+  });
+});
+
+// Generic copy buttons (referral tab)
+document.querySelectorAll("[data-copy]").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    const el = document.getElementById(btn.dataset.copy);
+    navigator.clipboard.writeText(el.textContent).then(()=>{
+      const old = btn.textContent; btn.textContent = "Copied ✓";
+      setTimeout(()=>btn.textContent = old, 1400);
+    });
+  });
+});
+
+// ============================================================
+//  INTERVIEW COACH (local, rule-based)
+// ============================================================
+const BEHAVIORAL_Q = [
+  "Tell me about a time you handled a difficult deadline.",
+  "Describe a conflict with a coworker and how you resolved it.",
+  "Give an example of a goal you set and how you achieved it.",
+  "Tell me about a mistake you made and what you learned.",
+  "Describe a time you had to learn something new quickly.",
+  "Tell me about a time you led or influenced others without authority.",
+  "Describe a situation where you used data to make a decision.",
+  "Tell me about a time you received tough feedback."
+];
+const ASK_THEM = [
+  "What does success look like in this role in the first 90 days?",
+  "How is performance measured for this position?",
+  "What are the biggest challenges the team is facing right now?",
+  "How would you describe the team's working style and culture?",
+  "What are the opportunities for growth and development here?",
+  "What's the next step in the interview process?"
+];
+
+function ivGenerate(){
+  const jd = document.getElementById("ivJd").value;
+  const role = document.getElementById("ivRole").value.trim();
+  const type = document.getElementById("ivType").value;
+  const resume = document.getElementById("ivResume").value;
+  if(jd.trim().length < 20 && !role){
+    alert("Paste the job description (or at least enter the role) to generate prep.");
+    return;
+  }
+  const jdMap = extractKeywords(jd);
+  const skills = topJDKeywords(jdMap, 12);
+
+  // Role-specific questions from JD keywords
+  const roleQs = skills.slice(0, 8).map(s =>
+    `Walk me through your experience with ${s}.`);
+
+  let questions = [];
+  if(type === "behavioral") questions = BEHAVIORAL_Q.slice();
+  else if(type === "technical") questions = roleQs.concat(BEHAVIORAL_Q.slice(0,2));
+  else if(type === "screening") questions = [
+    "Tell me about yourself and why this role interests you.",
+    "What are your salary expectations?",
+    "Why are you leaving your current role?",
+    "What do you know about our company?"
+  ].concat(roleQs.slice(0,3));
+  else questions = roleQs.slice(0,5).concat(BEHAVIORAL_Q.slice(0,5));
+
+  // Personalize note if resume given
+  const resumeMap = resume ? extractKeywords(resume) : null;
+  document.getElementById("ivQuestions").innerHTML = questions.map(q=>{
+    let tag = "";
+    if(resumeMap){
+      const hit = skills.find(s => q.toLowerCase().includes(s) && resumeMap.has(s));
+      if(hit) tag = ` <span class="pill good" style="font-size:11px">you have ${hit} on your resume — use it</span>`;
+    }
+    return "<li>" + q.replace(/</g,"&lt;") + tag + "</li>";
+  }).join("");
+
+  const star =
+`S — Situation:  Set the scene in 1–2 sentences (where, when, your role).
+T — Task:       What was the goal or problem you were responsible for?
+A — Action:     The specific steps YOU took (use "I", not "we"). This is 60% of the answer.
+R — Result:     The outcome — quantify it (%, time saved, revenue, users). What did you learn?
+
+Tip: prepare 3–4 real stories that each cover several questions${role ? " for the " + role + " role" : ""}.`;
+  document.getElementById("ivStar").textContent = star;
+
+  document.getElementById("ivAsk").innerHTML = ASK_THEM.map(q=>"<li>"+q+"</li>").join("");
+  document.getElementById("ivResults").style.display = "block";
+  document.getElementById("ivResults").scrollIntoView({behavior:"smooth"});
+}
+document.getElementById("ivBtn").addEventListener("click", ivGenerate);
+document.getElementById("ivSampleBtn").addEventListener("click", ()=>{
+  document.getElementById("ivRole").value = "Digital Marketing Specialist";
+  document.getElementById("ivJd").value =
+`We are hiring a Digital Marketing Specialist to manage social media channels,
+run content marketing campaigns, analyze performance with Google Analytics,
+improve SEO, and build email marketing flows. Strong data analysis required.`;
+});
+
+// ============================================================
+//  REFERRAL COACH (local, rule-based)
+// ============================================================
+function rfTopStrength(profileText){
+  const map = extractKeywords(profileText);
+  const top = topJDKeywords(map, 3);
+  return top.length ? top.join(", ") : "my background";
+}
+function rfGenerate(){
+  const profile = document.getElementById("rfProfile").value;
+  const company = document.getElementById("rfCompany").value.trim() || "your company";
+  const role = document.getElementById("rfRole").value.trim() || "an open role";
+  const name = document.getElementById("rfName").value.trim();
+  const rel = document.getElementById("rfRel").value;
+  if(profile.trim().length < 20){
+    alert("Paste some of your LinkedIn profile text so the drafts reflect your real background.");
+    return;
+  }
+  const strengths = rfTopStrength(profile);
+  const greeting = name ? `Hi ${name},` : "Hi there,";
+
+  const relLine = {
+    cold:    `I came across your profile while researching ${company}.`,
+    alumni:  `I noticed we both went to the same school — go alumni!`,
+    former:  `It's been a while since we worked together — hope you're doing well!`,
+    "2nd":   `We have a few mutual connections, and I've been following ${company}'s work.`,
+    recruiter: `I saw you recruit for ${company} and wanted to reach out directly.`
+  }[rel];
+
+  document.getElementById("rfConnect").textContent =
+`${greeting} ${relLine} I'm exploring ${role} opportunities and would love to connect.`.slice(0,300);
+
+  document.getElementById("rfMessage").textContent =
+`${greeting}
+
+${relLine} I'm reaching out because I'm very interested in the ${role} position at ${company}.
+
+A bit about me: my background centers on ${strengths}, which lines up closely with what the role calls for. I'd be grateful for any insight you can share — and if you feel it's appropriate, a referral would mean a lot. Happy to send my resume and a short summary to make it easy for you.
+
+Either way, thank you for your time!
+
+Best,
+[Your name]`;
+
+  document.getElementById("rfFollow").textContent =
+`${greeting}
+
+Just wanted to gently follow up on my note about the ${role} role at ${company}. I know things get busy! No pressure at all — even pointing me to the right person or sharing any advice would be hugely appreciated.
+
+Thanks again,
+[Your name]`;
+
+  document.getElementById("rfTips").innerHTML = [
+    "Personalize the first line further — reference something specific they posted or worked on.",
+    "Make it <b>easy to say yes</b>: attach your resume and the exact job link/req number.",
+    "Keep the ask honest — request a referral only if they can genuinely vouch for relevant work; otherwise ask for insight.",
+    "Send connection requests <em>with</em> a note — blank requests get ignored.",
+    "Follow up once after ~5 days, then let it go gracefully."
+  ].map(t=>"<li>"+t+"</li>").join("");
+
+  document.getElementById("rfResults").style.display = "block";
+  document.getElementById("rfResults").scrollIntoView({behavior:"smooth"});
+}
+document.getElementById("rfBtn").addEventListener("click", rfGenerate);
+document.getElementById("rfSampleBtn").addEventListener("click", ()=>{
+  document.getElementById("rfProfile").value =
+`Marketing coordinator with 3 years of experience in social media, content marketing,
+email campaigns, and Google Analytics. Grew Instagram following 40% and improved email open rates.`;
+  document.getElementById("rfCompany").value = "Acme Corp";
+  document.getElementById("rfRole").value = "Digital Marketing Specialist";
+  document.getElementById("rfName").value = "Sam";
+});
+
+// ============================================================
+//  OPTIONAL ON-DEVICE AI (WebLLM via WebGPU) — free & private
+// ============================================================
+let webllmEngine = null;
+let webllmLoading = false;
+
+function setAiStatus(msg, show=true){
+  const el = document.getElementById("aiStatus");
+  el.style.display = show ? "block" : "none";
+  el.innerHTML = msg;
+}
+
+async function loadWebLLM(){
+  if(webllmEngine || webllmLoading) return webllmEngine;
+  if(!("gpu" in navigator)){
+    setAiStatus("⚠️ On-device AI needs WebGPU (Chrome/Edge 113+ on a modern GPU). The app still works fully without it.");
+    document.getElementById("llmToggle").checked = false;
+    return null;
+  }
+  webllmLoading = true;
+  setAiStatus("⏳ Downloading the small AI model the first time (cached afterwards). This can take a few minutes…");
+  try {
+    const webllm = await import("https://esm.run/@mlc-ai/web-llm");
+    webllmEngine = await webllm.CreateMLCEngine(
+      "Llama-3.2-1B-Instruct-q4f16_1-MLC",
+      { initProgressCallback: (p)=> setAiStatus("⏳ Loading on-device AI: " + Math.round((p.progress||0)*100) + "%") }
+    );
+    setAiStatus("✅ On-device AI ready. Click “AI-enhance bullets” after analyzing.");
+  } catch(err){
+    setAiStatus("⚠️ Couldn't load the on-device AI (" + (err.message||err) + "). The app still works without it.");
+    document.getElementById("llmToggle").checked = false;
+  }
+  webllmLoading = false;
+  return webllmEngine;
+}
+
+document.getElementById("llmToggle").addEventListener("change", e=>{
+  const on = e.target.checked;
+  document.getElementById("aiBtn").style.display = on ? "inline-block" : "none";
+  if(on) loadWebLLM();
+  else setAiStatus("", false);
+});
+
+document.getElementById("aiBtn").addEventListener("click", async ()=>{
+  const engine = await loadWebLLM();
+  if(!engine){ return; }
+  const el = document.getElementById("tailored");
+  const base = el.dataset.plain || el.textContent;
+  setAiStatus("✨ Rephrasing your real bullets for clarity and impact (on-device)…");
+  try {
+    const resp = await engine.chat.completions.create({
+      messages: [
+        { role: "system", content: "You are a resume editor. Improve clarity and impact of the user's resume bullet points. CRITICAL RULES: Never invent facts, numbers, employers, or skills. Only rephrase what is given. Keep it truthful and concise. Return the same resume text with improved wording only." },
+        { role: "user", content: base }
+      ],
+      temperature: 0.3
+    });
+    const out = resp.choices[0].message.content.trim();
+    el.dataset.plain = out;
+    el.textContent = out;
+    setAiStatus("✅ Done. Review carefully — keep only changes that remain 100% true to your experience.");
+  } catch(err){
+    setAiStatus("⚠️ AI rephrase failed: " + (err.message||err));
+  }
+});
+</script>
+</body>
+</html>
