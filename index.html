@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Career Coach — Honest ATS Optimizer</title>
+<title>Career Coach — Free &amp; Private Job-Search Toolkit</title>
 <style>
   :root {
     --bg: #0f1220;
@@ -155,7 +155,7 @@
 <body>
   <header>
     <h1>Career Coach <span style="color:var(--accent)">·</span> Free &amp; Private</h1>
-    <div class="sub">Three honest coaches for your job search — all running 100% in your browser.</div>
+    <div class="sub">An honest, all-in-one job-search toolkit — running 100% in your browser.</div>
   </header>
 
   <div class="ethics">
@@ -166,8 +166,11 @@
 
   <nav class="tabs" role="tablist">
     <button class="tab-btn active" data-tab="resume" role="tab">📄 Resume Optimizer</button>
+    <button class="tab-btn" data-tab="coverletter" role="tab">📝 Cover Letter</button>
     <button class="tab-btn" data-tab="interview" role="tab">🎤 Interview Coach</button>
     <button class="tab-btn" data-tab="referral" role="tab">🤝 Referral Coach</button>
+    <button class="tab-btn" data-tab="localize" role="tab">🌐 Translate &amp; Localize</button>
+    <button class="tab-btn" data-tab="tracker" role="tab">📋 Job Tracker</button>
   </nav>
 
   <main id="tab-resume" class="tab-panel active">
@@ -180,6 +183,16 @@
           <input type="file" id="resumeFile" accept=".txt,.pdf" />
         </label>
         <span class="muted" id="resumeFileName"></span>
+      </div>
+      <div class="row" style="margin-top:12px">
+        <div style="flex:1;min-width:200px">
+          <label class="muted" style="font-size:12px">Resume profile (tailors summary &amp; section order)</label>
+          <select id="resumeTemplate">
+            <option value="experienced">Experienced professional</option>
+            <option value="newgrad">New grad / student</option>
+            <option value="changer">Career changer</option>
+          </select>
+        </div>
       </div>
     </section>
 
@@ -197,14 +210,36 @@
 
     <div class="actions">
       <button class="primary" id="analyzeBtn">Analyze match</button>
+      <button class="ghost" id="healthBtn">🩺 Resume health check</button>
       <button class="ghost" id="sampleBtn">Load sample</button>
     </div>
 
-    <div class="actions" style="margin-top:-6px">
+    <div class="actions" style="margin-top:-6px;flex-direction:column;align-items:center;gap:8px">
       <label class="file" style="border-style:solid;cursor:pointer" title="Runs a small AI model entirely in your browser using WebGPU. First use downloads the model (~1–2 GB cached afterward). 100% free and private — nothing is sent to any server.">
         <input type="checkbox" id="llmToggle" style="accent-color:var(--accent)" />
         🧠 Enable on-device AI rephrasing <span class="muted">(free &amp; private, runs in your browser)</span>
       </label>
+      <details style="max-width:760px;width:100%" id="aiHelp">
+        <summary class="muted" style="cursor:pointer;font-size:13px;text-align:center">ℹ️ How to use the free on-device AI — step by step</summary>
+        <div class="panel" style="background:var(--panel-2);margin-top:8px;font-size:13px">
+          <p style="margin:0 0 8px"><b>What it is:</b> a small AI model (Llama 3.2) that runs <b>entirely inside your browser</b> using your computer's GPU (WebGPU). Nothing is uploaded — it's 100% free and private, with no API key or account.</p>
+          <p style="margin:0 0 6px"><b>Before you start — requirements:</b></p>
+          <ul class="tips" style="margin-top:0">
+            <li>Use <b>Google Chrome or Microsoft Edge, version 113 or newer</b> (Safari/Firefox don't fully support WebGPU yet).</li>
+            <li>A reasonably modern computer with a GPU. A laptop from the last ~5 years is usually fine.</li>
+            <li>About <b>1–2 GB of free disk space</b> and a stable internet connection <i>for the first download only</i>.</li>
+          </ul>
+          <p style="margin:8px 0 6px"><b>Steps:</b></p>
+          <ol class="tips" style="margin-top:0">
+            <li><b>Fill in</b> your resume and the job description above, then click <b>“Analyze match”</b>.</li>
+            <li><b>Tick the checkbox</b> “🧠 Enable on-device AI rephrasing”.</li>
+            <li><b>Wait for the model to download.</b> The first time only, you'll see a progress %. This can take a few minutes depending on your internet. It's saved (cached) afterward, so next time it loads in seconds.</li>
+            <li>When you see <b>“✅ On-device AI ready”</b>, scroll to the <b>Tailored resume</b> box and click <b>“✨ AI-enhance bullets”</b>.</li>
+            <li>The AI rewrites your real bullet points for clarity and impact. <b>Review every change</b> and keep only what stays 100% true to your experience.</li>
+          </ol>
+          <p style="margin:8px 0 0"><b>Troubleshooting:</b> If you see a WebGPU warning, update your browser or switch to Chrome/Edge. The rest of the app works fully without the AI — it's an optional booster. To free up space later, clear your browser's site data for this page.</p>
+        </div>
+      </details>
     </div>
 
     <section class="panel" id="results">
@@ -253,6 +288,62 @@
         <div class="panel" id="tailored" style="background:var(--panel-2);white-space:pre-wrap;font-family:ui-monospace,'Cascadia Code',Consolas,monospace;font-size:13px;max-height:460px;overflow:auto"></div>
         <div class="panel" id="diffView" style="display:none;background:var(--panel-2);white-space:pre-wrap;font-family:ui-monospace,'Cascadia Code',Consolas,monospace;font-size:13px;max-height:460px;overflow:auto"></div>
       </div>
+    </section>
+
+    <!-- Resume Health Check results -->
+    <section class="panel" id="healthResults" style="grid-column:1 / -1;display:none">
+      <div class="results-grid">
+        <div class="score-card panel" style="background:var(--panel-2)">
+          <h3 style="margin-top:4px">Resume score</h3>
+          <div class="gauge">
+            <svg width="180" height="180" viewBox="0 0 180 180">
+              <circle cx="90" cy="90" r="78" fill="none" stroke="#2a3157" stroke-width="14"/>
+              <circle id="healthArc" cx="90" cy="90" r="78" fill="none" stroke="var(--accent)"
+                      stroke-width="14" stroke-linecap="round" stroke-dasharray="490" stroke-dashoffset="490"/>
+            </svg>
+            <div class="num"><b id="healthNum">0</b><span>out of 100</span></div>
+          </div>
+          <div class="legend" id="healthBreakdown"></div>
+        </div>
+        <div>
+          <div class="block" style="margin-top:0">
+            <h3>🔒 Privacy linter <span class="muted">(info US recruiters say to remove)</span></h3>
+            <ul class="tips" id="privacyList"></ul>
+          </div>
+          <div class="block">
+            <h3>🤖 ATS-friendliness</h3>
+            <ul class="tips" id="atsList"></ul>
+          </div>
+        </div>
+      </div>
+      <div class="results-grid" style="margin-top:6px">
+        <div class="block">
+          <h3>📈 Add numbers (quantify)</h3>
+          <ul class="tips" id="quantList"></ul>
+        </div>
+        <div class="block">
+          <h3>✍️ Clarity &amp; grammar <span class="muted">(ESL-friendly)</span></h3>
+          <ul class="tips" id="eslList"></ul>
+        </div>
+      </div>
+      <div class="block">
+        <h3>⏱️ Verb tense consistency</h3>
+        <ul class="tips" id="tenseList"></ul>
+      </div>
+    </section>
+
+    <!-- LinkedIn ↔ Resume sync -->
+    <section class="panel" style="grid-column:1 / -1">
+      <details>
+        <summary class="muted" style="cursor:pointer;font-size:14px">🔗 LinkedIn ↔ Resume consistency check (optional)</summary>
+        <div class="legend" style="margin:10px 0">Paste your LinkedIn profile text to find skills that appear in one place but not the other — so your resume and profile tell the same story.</div>
+        <textarea id="liSync" placeholder="Paste your LinkedIn 'About' + experience here..." style="min-height:140px"></textarea>
+        <div class="actions" style="justify-content:flex-start"><button class="ghost" id="liSyncBtn">Compare with resume</button></div>
+        <div class="results-grid" id="liSyncResults" style="display:none;margin-top:6px">
+          <div class="block" style="margin-top:0"><h3>On resume, missing from LinkedIn</h3><div class="pill-group" id="liOnlyResume"></div></div>
+          <div class="block" style="margin-top:0"><h3>On LinkedIn, missing from resume</h3><div class="pill-group" id="liOnlyLinkedIn"></div></div>
+        </div>
+      </details>
     </section>
   </main>
 
@@ -369,6 +460,146 @@
         <h3>Tips</h3>
         <ul class="tips" id="rfTips"></ul>
       </div>
+    </section>
+  </main>
+
+  <!-- ===================== COVER LETTER ===================== -->
+  <main id="tab-coverletter" class="tab-panel single">
+    <section class="panel">
+      <h2>Cover Letter Generator</h2>
+      <div class="legend" style="margin-bottom:12px">Builds an honest first draft from your <b>real resume</b> and the job description. It never invents experience — it connects what you've actually done to what the role needs. Edit before sending.</div>
+      <div class="row" style="margin:0 0 10px">
+        <div style="flex:1;min-width:200px"><label class="muted" style="font-size:12px">Your name</label><input type="text" id="clName" placeholder="e.g. Jordan Lee" /></div>
+        <div style="flex:1;min-width:200px"><label class="muted" style="font-size:12px">Company</label><input type="text" id="clCompany" placeholder="e.g. Acme Corp" /></div>
+        <div style="flex:1;min-width:200px"><label class="muted" style="font-size:12px">Role / title</label><input type="text" id="clRole" placeholder="e.g. Digital Marketing Specialist" /></div>
+      </div>
+      <div class="row" style="margin:0 0 10px">
+        <div style="flex:1;min-width:200px"><label class="muted" style="font-size:12px">Hiring manager (optional)</label><input type="text" id="clManager" placeholder="e.g. Sam Rivera" /></div>
+        <div style="flex:1;min-width:200px"><label class="muted" style="font-size:12px">Tone</label>
+          <select id="clTone">
+            <option value="professional">Professional</option>
+            <option value="warm">Warm &amp; personable</option>
+            <option value="concise">Concise &amp; direct</option>
+            <option value="enthusiastic">Enthusiastic</option>
+          </select>
+        </div>
+        <div style="flex:1;min-width:200px"><label class="muted" style="font-size:12px">Language</label>
+          <select id="clLang">
+            <option value="en">English</option>
+            <option value="zh">中文 (Chinese)</option>
+          </select>
+        </div>
+      </div>
+      <label class="muted" style="font-size:12px">Your resume</label>
+      <textarea id="clResume" placeholder="Paste your resume (or reuse the one from the Resume tab)..."></textarea>
+      <label class="muted" style="font-size:12px;margin-top:8px;display:block">Job description</label>
+      <textarea id="clJd" placeholder="Paste the job description..." style="min-height:140px"></textarea>
+    </section>
+    <div class="actions">
+      <button class="primary" id="clBtn">Generate cover letter</button>
+      <button class="ghost" id="clAiBtn" style="display:none">✨ Polish with on-device AI</button>
+      <button class="ghost" id="clSampleBtn">Load sample</button>
+    </div>
+    <section class="panel" id="clResults" style="display:none">
+      <div class="block" style="margin-top:0">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <h3 style="margin:0">Draft cover letter</h3>
+          <button class="ghost" data-copy="clOut" style="padding:6px 12px;font-size:12px">Copy</button>
+        </div>
+        <div class="legend" id="clStatus" style="margin:6px 0;display:none"></div>
+        <div class="out-box" id="clOut" style="margin-top:8px"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===================== TRANSLATE & LOCALIZE ===================== -->
+  <main id="tab-localize" class="tab-panel single">
+    <section class="panel">
+      <h2>Translate &amp; Localize</h2>
+      <div class="legend" style="margin-bottom:0">For non-native English speakers: translate your resume between <b>Chinese ⇄ English</b>, romanize your name to <b>pinyin</b>, and convert a CV to <b>US format</b>. Translation uses the optional on-device AI (free &amp; private); US-format and pinyin work instantly without AI.</div>
+    </section>
+
+    <section class="panel">
+      <h3 style="margin-top:0">① Translate (Chinese ⇄ English)</h3>
+      <div class="row" style="margin:0 0 10px">
+        <div style="flex:1;min-width:200px"><label class="muted" style="font-size:12px">Direction</label>
+          <select id="trDir">
+            <option value="zh2en">中文 → English</option>
+            <option value="en2zh">English → 中文</option>
+          </select>
+        </div>
+      </div>
+      <textarea id="trIn" placeholder="Paste the resume text to translate..."></textarea>
+      <div class="actions" style="justify-content:flex-start">
+        <button class="primary" id="trBtn">Translate (on-device AI)</button>
+        <button class="ghost" data-copy="trOut" style="padding:8px 14px">Copy result</button>
+      </div>
+      <div class="legend" id="trStatus" style="display:none;margin-bottom:8px"></div>
+      <div class="out-box" id="trOut"></div>
+    </section>
+
+    <section class="panel">
+      <h3 style="margin-top:0">② Pinyin / name romanization</h3>
+      <div class="legend" style="margin-bottom:8px">Enter a Chinese name to get a Western-friendly pinyin version for your resume header. (Tone marks omitted, which is standard on US resumes.)</div>
+      <div class="row" style="margin:0">
+        <input type="text" id="pyIn" placeholder="e.g. 李明 or paste a Chinese name" style="flex:2;min-width:200px" />
+        <button class="ghost" id="pyBtn">Romanize</button>
+      </div>
+      <div class="out-box" id="pyOut" style="margin-top:10px"></div>
+    </section>
+
+    <section class="panel">
+      <h3 style="margin-top:0">③ Convert CV → US format</h3>
+      <div class="legend" style="margin-bottom:8px">Applies US résumé norms: flags personal info to remove (photo, age, marital status, nationality), switches to US spelling, and standardizes dates. Review the notes below the output.</div>
+      <textarea id="usIn" placeholder="Paste your CV text..."></textarea>
+      <div class="actions" style="justify-content:flex-start">
+        <button class="primary" id="usBtn">Convert to US format</button>
+        <button class="ghost" data-copy="usOut" style="padding:8px 14px">Copy result</button>
+      </div>
+      <div class="out-box" id="usOut"></div>
+      <ul class="tips" id="usNotes" style="margin-top:10px"></ul>
+    </section>
+  </main>
+
+  <!-- ===================== JOB TRACKER ===================== -->
+  <main id="tab-tracker" class="tab-panel single">
+    <section class="panel">
+      <h2>Job Application Tracker</h2>
+      <div class="legend" style="margin-bottom:12px">Track every application in one place. Saved <b>locally in your browser</b> (nothing leaves your device). Set a follow-up date and the row turns amber when it's due.</div>
+      <div class="row" style="margin:0 0 10px;align-items:flex-end">
+        <div style="flex:1;min-width:140px"><label class="muted" style="font-size:12px">Company</label><input type="text" id="jtCompany" placeholder="Acme Corp" /></div>
+        <div style="flex:1;min-width:140px"><label class="muted" style="font-size:12px">Role</label><input type="text" id="jtRole" placeholder="Data Analyst" /></div>
+        <div style="flex:1;min-width:120px"><label class="muted" style="font-size:12px">Status</label>
+          <select id="jtStatus">
+            <option>Saved</option><option>Applied</option><option>Phone screen</option>
+            <option>Interview</option><option>Offer</option><option>Rejected</option>
+          </select>
+        </div>
+        <div style="flex:1;min-width:130px"><label class="muted" style="font-size:12px">Follow-up date</label><input type="text" id="jtFollow" placeholder="YYYY-MM-DD" /></div>
+        <button class="primary" id="jtAddBtn" style="padding:10px 18px">Add</button>
+      </div>
+    </section>
+    <section class="panel">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <h3 style="margin:0">Your applications (<span id="jtCount">0</span>)</h3>
+        <div style="display:flex;gap:8px">
+          <button class="ghost" id="jtExportBtn" style="padding:6px 12px;font-size:12px">Export CSV</button>
+          <button class="ghost" id="jtClearBtn" style="padding:6px 12px;font-size:12px">Clear all</button>
+        </div>
+      </div>
+      <div style="overflow:auto">
+        <table id="jtTable" style="width:100%;border-collapse:collapse;font-size:13px">
+          <thead>
+            <tr style="text-align:left;color:var(--muted)">
+              <th style="padding:8px">Company</th><th style="padding:8px">Role</th>
+              <th style="padding:8px">Status</th><th style="padding:8px">Follow-up</th>
+              <th style="padding:8px">Added</th><th style="padding:8px"></th>
+            </tr>
+          </thead>
+          <tbody id="jtBody"></tbody>
+        </table>
+      </div>
+      <div class="legend" id="jtEmpty">No applications yet — add your first above.</div>
     </section>
   </main>
 
@@ -535,11 +766,16 @@ function buildTailored(resumeText, jdMap, jdKeys, covered){
 
   // Build a tailored Summary + Skills line from skills the user ALREADY has (covered only).
   const skillLine = covered.slice(0, 12).join(" · ");
+  const tmpl = (document.getElementById("resumeTemplate")||{}).value || "experienced";
+  const summaryByTemplate = {
+    experienced: "Experienced professional with demonstrated expertise in " + covered.slice(0,5).join(", ") + " — aligned to this role's core requirements.",
+    newgrad: "Motivated recent graduate with hands-on exposure to " + covered.slice(0,5).join(", ") + ", eager to apply these skills and grow in this role.",
+    changer: "Professional transitioning into this field, bringing transferable strengths in " + covered.slice(0,5).join(", ") + " that map directly to this role's needs."
+  };
   const header = [];
   if(covered.length){
     header.push("PROFESSIONAL SUMMARY");
-    header.push("Candidate with demonstrated experience in " +
-      covered.slice(0,5).join(", ") + " — aligned to this role's core requirements.");
+    header.push(summaryByTemplate[tmpl] || summaryByTemplate.experienced);
     header.push("");
     header.push("CORE SKILLS (matched to this job)");
     header.push(skillLine);
@@ -863,7 +1099,7 @@ email campaigns, and Google Analytics. Grew Instagram following 40% and improved
 //  OPTIONAL ON-DEVICE AI (WebLLM via WebGPU) — free & private
 // ============================================================
 let webllmEngine = null;
-let webllmLoading = false;
+let webllmLoading = null;
 
 function setAiStatus(msg, show=true){
   const el = document.getElementById("aiStatus");
@@ -871,59 +1107,392 @@ function setAiStatus(msg, show=true){
   el.innerHTML = msg;
 }
 
-async function loadWebLLM(){
-  if(webllmEngine || webllmLoading) return webllmEngine;
+// Generic, reusable engine loader. onStatus(msg) reports progress to any UI.
+async function ensureEngine(onStatus){
+  if(webllmEngine) return webllmEngine;
   if(!("gpu" in navigator)){
-    setAiStatus("⚠️ On-device AI needs WebGPU (Chrome/Edge 113+ on a modern GPU). The app still works fully without it.");
-    document.getElementById("llmToggle").checked = false;
+    onStatus && onStatus("⚠️ On-device AI needs WebGPU (Chrome/Edge 113+ on a modern GPU). The app still works fully without it.");
     return null;
   }
-  webllmLoading = true;
-  setAiStatus("⏳ Downloading the small AI model the first time (cached afterwards). This can take a few minutes…");
-  try {
-    const webllm = await import("https://esm.run/@mlc-ai/web-llm");
-    webllmEngine = await webllm.CreateMLCEngine(
-      "Llama-3.2-1B-Instruct-q4f16_1-MLC",
-      { initProgressCallback: (p)=> setAiStatus("⏳ Loading on-device AI: " + Math.round((p.progress||0)*100) + "%") }
-    );
-    setAiStatus("✅ On-device AI ready. Click “AI-enhance bullets” after analyzing.");
-  } catch(err){
-    setAiStatus("⚠️ Couldn't load the on-device AI (" + (err.message||err) + "). The app still works without it.");
-    document.getElementById("llmToggle").checked = false;
-  }
-  webllmLoading = false;
-  return webllmEngine;
+  if(webllmLoading) return webllmLoading;
+  onStatus && onStatus("⏳ Downloading the small AI model the first time (cached afterwards). This can take a few minutes…");
+  webllmLoading = (async ()=>{
+    try {
+      const webllm = await import("https://esm.run/@mlc-ai/web-llm");
+      const engine = await webllm.CreateMLCEngine(
+        "Llama-3.2-1B-Instruct-q4f16_1-MLC",
+        { initProgressCallback: (p)=> onStatus && onStatus("⏳ Loading on-device AI: " + Math.round((p.progress||0)*100) + "%") }
+      );
+      webllmEngine = engine;
+      onStatus && onStatus("✅ On-device AI ready.");
+      return engine;
+    } catch(err){
+      onStatus && onStatus("⚠️ Couldn't load the on-device AI (" + (err.message||err) + "). The app still works without it.");
+      webllmLoading = null;
+      return null;
+    }
+  })();
+  return webllmLoading;
 }
+
+async function runLLM(system, user, onStatus, temperature=0.3){
+  const engine = await ensureEngine(onStatus);
+  if(!engine) return null;
+  const resp = await engine.chat.completions.create({
+    messages: [{ role:"system", content: system }, { role:"user", content: user }],
+    temperature
+  });
+  return resp.choices[0].message.content.trim();
+}
+
+function loadWebLLM(){ return ensureEngine(setAiStatus); }
 
 document.getElementById("llmToggle").addEventListener("change", e=>{
   const on = e.target.checked;
   document.getElementById("aiBtn").style.display = on ? "inline-block" : "none";
+  document.getElementById("clAiBtn").style.display = on ? "inline-block" : "none";
   if(on) loadWebLLM();
   else setAiStatus("", false);
 });
 
 document.getElementById("aiBtn").addEventListener("click", async ()=>{
-  const engine = await loadWebLLM();
+  const engine = await ensureEngine(setAiStatus);
   if(!engine){ return; }
   const el = document.getElementById("tailored");
   const base = el.dataset.plain || el.textContent;
   setAiStatus("✨ Rephrasing your real bullets for clarity and impact (on-device)…");
   try {
-    const resp = await engine.chat.completions.create({
-      messages: [
-        { role: "system", content: "You are a resume editor. Improve clarity and impact of the user's resume bullet points. CRITICAL RULES: Never invent facts, numbers, employers, or skills. Only rephrase what is given. Keep it truthful and concise. Return the same resume text with improved wording only." },
-        { role: "user", content: base }
-      ],
-      temperature: 0.3
-    });
-    const out = resp.choices[0].message.content.trim();
-    el.dataset.plain = out;
-    el.textContent = out;
-    setAiStatus("✅ Done. Review carefully — keep only changes that remain 100% true to your experience.");
+    const out = await runLLM(
+      "You are a resume editor. Improve clarity and impact of the user's resume bullet points. CRITICAL RULES: Never invent facts, numbers, employers, or skills. Only rephrase what is given. Keep it truthful and concise. Return the same resume text with improved wording only.",
+      base, setAiStatus);
+    if(out){ el.dataset.plain = out; el.textContent = out;
+      setAiStatus("✅ Done. Review carefully — keep only changes that remain 100% true to your experience."); }
   } catch(err){
     setAiStatus("⚠️ AI rephrase failed: " + (err.message||err));
   }
 });
+
+// ============================================================
+//  RESUME HEALTH CHECK (#3 privacy, #4 ESL, #5 quant, #7 ATS, #8 score, #13 tense)
+// ============================================================
+function getResumeLines(text){ return text.replace(/\r/g,"").split("\n"); }
+function resumeBulletLines(text){ return getResumeLines(text).filter(l=>isBullet(l)); }
+
+const PRIVACY_PATTERNS = [
+  { re: /\b(photo|photograph|headshot|profile picture)\b/i, label: "Photo / headshot", why: "US employers omit photos to avoid bias claims." },
+  { re: /\b(date of birth|d\.?o\.?b\.?|birth\s?date)\b/i, label: "Date of birth", why: "Age is protected info — leave it off in the US." },
+  { re: /\b(\d{1,2}\s?(years|yrs)\s?old|age[:\s]+\d{2})\b/i, label: "Age", why: "Don't state your age on a US resume." },
+  { re: /\b(married|single|divorced|marital status)\b/i, label: "Marital status", why: "Not relevant; can introduce bias." },
+  { re: /\b(male|female|gender|sex)[:\s]/i, label: "Gender", why: "Leave gender off a US resume." },
+  { re: /\b(nationality|citizenship|visa status)\b/i, label: "Nationality / citizenship", why: "Only mention work authorization if specifically asked." },
+  { re: /\b(religion|religious)\b/i, label: "Religion", why: "Personal belief — omit it." },
+  { re: /\b(ssn|social security)\b/i, label: "Social Security Number", why: "Never put an SSN on a resume — fraud risk." },
+  { re: /\breferences? (available )?(up)?on request\b/i, label: '"References available on request"', why: "Outdated filler — recruiters assume it." },
+  { re: /\d{1,5}\s+[A-Za-z0-9.\s]+\b(street|st|avenue|ave|road|rd|lane|ln|blvd|drive|dr)\b/i, label: "Full street address", why: "City + state is enough; full address is a privacy risk." }
+];
+
+const WEAK_VERBS = ["responsible for","worked on","helped with","involved in","assisted with","duties included","tasked with"];
+const STRONG_VERBS = "led, built, launched, drove, increased, reduced, delivered, owned, designed, created, improved";
+
+function runHealthCheck(){
+  const resume = document.getElementById("resume").value;
+  if(resume.trim().length < 20){ alert("Paste your resume first (in the box above)."); return; }
+  const lines = getResumeLines(resume);
+  const bullets = resumeBulletLines(resume);
+  const wordCount = resume.split(/\s+/).filter(Boolean).length;
+
+  // --- Privacy linter ---
+  const priv = [];
+  PRIVACY_PATTERNS.forEach(p => { if(p.re.test(resume)) priv.push(`<b>${p.label}</b> — ${p.why}`); });
+  document.getElementById("privacyList").innerHTML = priv.length
+    ? priv.map(t=>'<li class="pill bad" style="display:list-item;border:none;background:none;color:#ffc2c8">'+t+'</li>').join("")
+    : '<li style="color:var(--good)">✓ No risky personal info detected.</li>';
+
+  // --- ATS-friendliness ---
+  const ats = [];
+  if(/\t/.test(resume) || /\|/.test(resume)) ats.push("Possible <b>table/column</b> characters detected — many ATS can't read tables. Use simple single-column text.");
+  if(/[•▪◦‣·]/.test(resume) === false && bullets.length === 0) ats.push("No clear bullet points found — use simple <code>-</code> or <code>•</code> bullets for each achievement.");
+  if(!/\b(experience|work history|employment)\b/i.test(resume)) ats.push("No standard <b>Experience</b> section heading found — ATS look for conventional headings.");
+  if(!/\b(education)\b/i.test(resume)) ats.push("No <b>Education</b> heading found — add one if applicable.");
+  if(!/\b(skills)\b/i.test(resume)) ats.push("No <b>Skills</b> section found — add one with relevant keywords.");
+  if(!/[\w.+-]+@[\w-]+\.[\w.-]+/.test(resume)) ats.push("No <b>email address</b> detected — make sure contact info is plain text (not in a header/image).");
+  document.getElementById("atsList").innerHTML = ats.length
+    ? ats.map(t=>"<li>"+t+"</li>").join("")
+    : '<li style="color:var(--good)">✓ Looks ATS-friendly.</li>';
+
+  // --- Quantification nudger ---
+  const unquant = bullets.filter(b => !/\d|%|\$|\b(percent|million|thousand|k\b)/i.test(b)).slice(0,6);
+  document.getElementById("quantList").innerHTML = unquant.length
+    ? '<li class="muted">These bullets have no numbers — add a metric (%, $, time, scale) if you can:</li>' +
+      unquant.map(b=>"<li>"+escapeHtml(b.trim())+"</li>").join("")
+    : '<li style="color:var(--good)">✓ Most bullets include metrics. Nice.</li>';
+
+  // --- ESL clarity & grammar ---
+  const esl = [];
+  WEAK_VERBS.forEach(w => { if(new RegExp("\\b"+w+"\\b","i").test(resume)) esl.push(`Replace weak phrase <code>${w}</code> with a strong action verb (${STRONG_VERBS}).`); });
+  const longSentences = lines.filter(l=>l.split(/\s+/).length > 28).length;
+  if(longSentences) esl.push(`${longSentences} very long line(s) found — break them up so each bullet is one clear idea.`);
+  if(/\bi\b/.test(resume)) esl.push('Avoid the word <code>I</code> on resumes — start bullets with an action verb instead (e.g., "Managed…", not "I managed…").');
+  if(/ {2,}|[a-z]\.[A-Z]/.test(resume)) esl.push("Check spacing/punctuation — found double spaces or missing spaces after periods.");
+  document.getElementById("eslList").innerHTML = esl.length
+    ? esl.map(t=>"<li>"+t+"</li>").join("")
+    : '<li style="color:var(--good)">✓ No common clarity issues detected.</li>';
+
+  // --- Verb tense consistency ---
+  const presentVerbs = (resume.match(/\b(manage|lead|build|create|develop|design|drive|improve|deliver)\b/gi)||[]).length;
+  const pastVerbs = (resume.match(/\b(managed|led|built|created|developed|designed|drove|improved|delivered)\b/gi)||[]).length;
+  const tense = [];
+  if(presentVerbs && pastVerbs){
+    tense.push(`Mixed tenses found (${pastVerbs} past, ${presentVerbs} present). Convention: <b>past tense</b> for previous roles, <b>present tense</b> only for your current job.`);
+  } else {
+    tense.push('<span style="color:var(--good)">✓ Verb tense looks consistent.</span>');
+  }
+  document.getElementById("tenseList").innerHTML = tense.map(t=>"<li>"+t+"</li>").join("");
+
+  // --- Score (out of 100) ---
+  let score = 100;
+  score -= priv.length * 6;
+  score -= ats.length * 7;
+  score -= Math.min(unquant.length,6) * 4;
+  score -= Math.min(esl.length,6) * 4;
+  if(presentVerbs && pastVerbs) score -= 6;
+  if(wordCount < 150) score -= 10;
+  if(wordCount > 900) score -= 8;
+  score = Math.max(5, Math.min(100, score));
+  const circ = 490;
+  document.getElementById("healthArc").style.strokeDashoffset = circ - (circ*score/100);
+  document.getElementById("healthArc").setAttribute("stroke", score>=75?"#36c98c":score>=50?"#f5a623":"#ff5d6c");
+  document.getElementById("healthNum").textContent = score;
+  document.getElementById("healthBreakdown").textContent =
+    `${wordCount} words · ${bullets.length} bullets · ${priv.length} privacy flag(s) · ${ats.length} ATS flag(s)`;
+
+  document.getElementById("healthResults").style.display = "block";
+  document.getElementById("healthResults").scrollIntoView({behavior:"smooth"});
+}
+document.getElementById("healthBtn").addEventListener("click", runHealthCheck);
+
+// ============================================================
+//  LINKEDIN ↔ RESUME SYNC (#9)
+// ============================================================
+document.getElementById("liSyncBtn").addEventListener("click", ()=>{
+  const resume = document.getElementById("resume").value;
+  const li = document.getElementById("liSync").value;
+  if(resume.trim().length < 20 || li.trim().length < 20){
+    alert("Add your resume (top of this tab) and your LinkedIn text to compare."); return;
+  }
+  const rKeys = new Set(topJDKeywords(extractKeywords(resume), 60));
+  const lKeys = new Set(topJDKeywords(extractKeywords(li), 60));
+  const onlyResume = [...rKeys].filter(k=>!lKeys.has(k)).slice(0,20);
+  const onlyLi = [...lKeys].filter(k=>!rKeys.has(k)).slice(0,20);
+  const fill = (id, arr, cls) => {
+    const el = document.getElementById(id);
+    el.innerHTML = arr.length ? "" : '<span class="muted">In sync 🎉</span>';
+    arr.forEach(k=>{ const s=document.createElement("span"); s.className="pill "+cls; s.textContent=k; el.appendChild(s); });
+  };
+  fill("liOnlyResume", onlyResume, "good");
+  fill("liOnlyLinkedIn", onlyLi, "bad");
+  document.getElementById("liSyncResults").style.display = "grid";
+});
+
+// ============================================================
+//  COVER LETTER (#6)
+// ============================================================
+function clStatus(msg, show=true){ const el=document.getElementById("clStatus"); el.style.display=show?"block":"none"; el.innerHTML=msg; }
+function clGenerate(){
+  const name = document.getElementById("clName").value.trim() || "[Your name]";
+  const company = document.getElementById("clCompany").value.trim() || "[Company]";
+  const role = document.getElementById("clRole").value.trim() || "the role";
+  const manager = document.getElementById("clManager").value.trim();
+  const tone = document.getElementById("clTone").value;
+  const lang = document.getElementById("clLang").value;
+  let resume = document.getElementById("clResume").value.trim() || document.getElementById("resume").value.trim();
+  const jd = document.getElementById("clJd").value.trim();
+  if(resume.length < 20 || jd.length < 20){ alert("Add your resume and the job description."); return; }
+
+  const jdMap = extractKeywords(jd);
+  const rKeys = new Set(topJDKeywords(extractKeywords(resume), 80));
+  const matched = topJDKeywords(jdMap, 20).filter(k=>rKeys.has(k)).slice(0,6);
+  const skillsPhrase = matched.length ? matched.join(", ") : "the core skills this role requires";
+  const greet = manager ? `Dear ${manager},` : "Dear Hiring Manager,";
+  const opener = {
+    professional: `I am writing to express my interest in the ${role} position at ${company}.`,
+    warm: `I was genuinely excited to come across the ${role} opening at ${company}.`,
+    concise: `I'm applying for the ${role} role at ${company}.`,
+    enthusiastic: `I'd love to bring my energy and experience to the ${role} role at ${company}!`
+  }[tone];
+
+  const en =
+`${greet}
+
+${opener} After reviewing the role, I believe my background in ${skillsPhrase} aligns closely with what your team is looking for.
+
+In my experience, I have applied these skills to deliver real results, and I'm confident I can do the same for ${company}. I'm especially drawn to this opportunity because it lets me contribute where I'm strongest while continuing to grow.
+
+I would welcome the chance to discuss how my experience can support your team's goals. Thank you for your time and consideration.
+
+Sincerely,
+${name}`;
+
+  const zh =
+`${manager ? manager + "，您好：" : "尊敬的招聘经理："}
+
+我写信表达我对${company}公司${role}职位的浓厚兴趣。在了解该职位后，我相信我在${skillsPhrase}方面的背景与贵团队的需求高度契合。
+
+在以往的经历中，我运用这些技能取得了实际成果，相信也能为${company}带来同样的价值。我尤其被这个机会所吸引，因为它能让我发挥所长，并持续成长。
+
+期待有机会进一步交流，说明我的经验如何助力贵团队实现目标。感谢您的宝贵时间与考虑。
+
+此致
+敬礼
+${name}`;
+
+  document.getElementById("clOut").textContent = lang === "zh" ? zh : en;
+  document.getElementById("clResults").style.display = "block";
+  clStatus("", false);
+}
+document.getElementById("clBtn").addEventListener("click", clGenerate);
+document.getElementById("clSampleBtn").addEventListener("click", ()=>{
+  document.getElementById("clName").value = "Jordan Lee";
+  document.getElementById("clCompany").value = "Acme Corp";
+  document.getElementById("clRole").value = "Digital Marketing Specialist";
+  document.getElementById("clResume").value = "Marketing coordinator experienced in social media, content marketing, email campaigns, and Google Analytics.";
+  document.getElementById("clJd").value = "Seeking a Digital Marketing Specialist with social media, SEO, content marketing, and Google Analytics experience.";
+});
+document.getElementById("clAiBtn").addEventListener("click", async ()=>{
+  const base = document.getElementById("clOut").textContent;
+  if(!base){ alert("Generate a draft first."); return; }
+  clStatus("✨ Polishing with on-device AI…");
+  try {
+    const out = await runLLM(
+      "You are a cover-letter editor. Improve flow and warmth while keeping every fact truthful. Do not invent achievements, employers, or numbers. Return only the improved letter.",
+      base, (m)=>clStatus(m));
+    if(out){ document.getElementById("clOut").textContent = out; clStatus("✅ Polished. Review before sending."); }
+  } catch(err){ clStatus("⚠️ Failed: " + (err.message||err)); }
+});
+
+// ============================================================
+//  TRANSLATE & LOCALIZE (#1 translate, #11 pinyin, #2 US-format)
+// ============================================================
+function trStatus(msg, show=true){ const el=document.getElementById("trStatus"); el.style.display=show?"block":"none"; el.innerHTML=msg; }
+document.getElementById("trBtn").addEventListener("click", async ()=>{
+  const text = document.getElementById("trIn").value.trim();
+  if(text.length < 2){ alert("Paste some text to translate."); return; }
+  const dir = document.getElementById("trDir").value;
+  const sys = dir === "zh2en"
+    ? "You are a professional resume translator. Translate the user's Chinese resume text into natural, professional US-English suitable for a resume. Keep formatting and bullet points. Translate faithfully — do not add or remove information."
+    : "You are a professional resume translator. Translate the user's English resume text into natural, professional Simplified Chinese. Keep formatting and bullet points. Translate faithfully — do not add or remove information.";
+  trStatus("⏳ Translating on-device…");
+  try {
+    const out = await runLLM(sys, text, (m)=>trStatus(m), 0.2);
+    if(out){ document.getElementById("trOut").textContent = out; trStatus("✅ Done (on-device). Review for accuracy.", true); }
+  } catch(err){ trStatus("⚠️ Failed: " + (err.message||err)); }
+});
+
+// Minimal offline pinyin map (common surnames + frequent chars) — no AI needed.
+const PINYIN = {"李":"Li","王":"Wang","张":"Zhang","刘":"Liu","陈":"Chen","杨":"Yang","赵":"Zhao","黄":"Huang","周":"Zhou","吴":"Wu","徐":"Xu","孙":"Sun","胡":"Hu","朱":"Zhu","高":"Gao","林":"Lin","何":"He","郭":"Guo","马":"Ma","罗":"Luo","梁":"Liang","宋":"Song","郑":"Zheng","谢":"Xie","韩":"Han","唐":"Tang","冯":"Feng","于":"Yu","董":"Dong","萧":"Xiao","程":"Cheng","曹":"Cao","袁":"Yuan","邓":"Deng","许":"Xu","傅":"Fu","沈":"Shen","曾":"Zeng","彭":"Peng","吕":"Lyu","苏":"Su","卢":"Lu","蒋":"Jiang","蔡":"Cai","贾":"Jia","丁":"Ding","魏":"Wei","薛":"Xue","叶":"Ye","阎":"Yan","余":"Yu","潘":"Pan","杜":"Du","戴":"Dai","夏":"Xia","钟":"Zhong","汪":"Wang","田":"Tian","任":"Ren","姜":"Jiang","范":"Fan","方":"Fang","石":"Shi","姚":"Yao","谭":"Tan","廖":"Liao","邹":"Zou","熊":"Xiong","金":"Jin","陆":"Lu","郝":"Hao","孔":"Kong","白":"Bai","崔":"Cui","康":"Kang","毛":"Mao","邱":"Qiu","秦":"Qin","江":"Jiang","史":"Shi","顾":"Gu","侯":"Hou","邵":"Shao","孟":"Meng","龙":"Long","万":"Wan","段":"Duan","雷":"Lei","钱":"Qian","汤":"Tang","尹":"Yin","黎":"Li","易":"Yi","常":"Chang","武":"Wu","乔":"Qiao","贺":"He","赖":"Lai","龚":"Gong","文":"Wen","明":"Ming","华":"Hua","平":"Ping","建":"Jian","国":"Guo","军":"Jun","伟":"Wei","芳":"Fang","娜":"Na","秀":"Xiu","英":"Ying","丽":"Li","强":"Qiang","磊":"Lei","洋":"Yang","勇":"Yong","艳":"Yan","杰":"Jie","娟":"Juan","涛":"Tao","超":"Chao","霞":"Xia","静":"Jing","敏":"Min","云":"Yun","梅":"Mei"};
+document.getElementById("pyBtn").addEventListener("click", ()=>{
+  const raw = document.getElementById("pyIn").value.trim();
+  if(!raw){ alert("Enter a Chinese name."); return; }
+  const chars = [...raw].filter(c=>/[\u4e00-\u9fff]/.test(c));
+  if(!chars.length){ document.getElementById("pyOut").textContent = "No Chinese characters detected — if it's already in pinyin, just capitalize each part (e.g., Li Ming)."; return; }
+  const parts = chars.map(c=>PINYIN[c] || ("["+c+"]"));
+  const unknown = parts.filter(p=>p.startsWith("[")).length;
+  // Convention: surname first char, given name remaining; US order = Given Surname
+  const surname = parts[0];
+  const given = parts.slice(1).join("");
+  const western = (given || "") + (given? " ":"") + surname;
+  let out = `Pinyin (Chinese order): ${parts.join(" ")}\nUS resume order (Given Surname): ${western || surname}`;
+  if(unknown) out += `\n\nNote: ${unknown} character(s) aren't in the offline list (shown in [brackets]). Enable the on-device AI for full coverage, or look them up.`;
+  document.getElementById("pyOut").textContent = out;
+});
+
+// US-format converter (#2)
+const UK_US_SPELLING = [["optimise","optimize"],["organise","organize"],["organisation","organization"],["analyse","analyze"],["colour","color"],["favour","favor"],["centre","center"],["programme","program"],["catalogue","catalog"],["licence","license"],["defence","defense"],["labour","labor"],["behaviour","behavior"],["modelling","modeling"],["travelled","traveled"],["fulfil","fulfill"],["enrol","enroll"],["cancelled","canceled"],["practise","practice"],["maximise","maximize"],["recognise","recognize"],["prioritise","prioritize"],["specialise","specialize"],["utilise","utilize"]];
+document.getElementById("usBtn").addEventListener("click", ()=>{
+  let text = document.getElementById("usIn").value;
+  if(text.trim().length < 10){ alert("Paste your CV text."); return; }
+  const notes = [];
+  // Flag personal info lines to remove
+  const removed = [];
+  const lines = text.replace(/\r/g,"").split("\n").filter(line=>{
+    for(const p of PRIVACY_PATTERNS){
+      if(p.re.test(line)){ removed.push(line.trim()); return false; }
+    }
+    return true;
+  });
+  text = lines.join("\n");
+  if(removed.length) notes.push(`Removed ${removed.length} line(s) with personal info not used on US resumes: ` + removed.slice(0,5).map(r=>'<code>'+escapeHtml(r.slice(0,40))+'</code>').join(", "));
+  // Spelling
+  let spellChanges = 0;
+  UK_US_SPELLING.forEach(([uk,us])=>{
+    const re = new RegExp("\\b"+uk+"\\b","gi");
+    text = text.replace(re, (m)=>{ spellChanges++; return m[0]===m[0].toUpperCase()? us[0].toUpperCase()+us.slice(1): us; });
+  });
+  if(spellChanges) notes.push(`Converted ${spellChanges} word(s) to US spelling (e.g., optimise → optimize).`);
+  // Date format DD/MM/YYYY -> MM/YYYY hint
+  if(/\b\d{1,2}\/\d{1,2}\/\d{4}\b/.test(text)){ notes.push("Found DD/MM/YYYY dates — US resumes usually use <code>Month YYYY</code> (e.g., March 2023). Adjust manually."); }
+  notes.push('Rename the document <b>"Resume"</b> (not "CV"), use <b>US Letter</b> page size, and keep it to <b>1 page</b> if you have under ~10 years of experience.');
+  notes.push("Replace any spelled-out month/day order with US order: <b>Month Day, Year</b>.");
+  document.getElementById("usOut").textContent = text.trim();
+  document.getElementById("usNotes").innerHTML = notes.map(n=>"<li>"+n+"</li>").join("");
+});
+
+// ============================================================
+//  JOB TRACKER (#10) — localStorage
+// ============================================================
+const JT_KEY = "careercoach_jobs_v1";
+function jtLoad(){ try { return JSON.parse(localStorage.getItem(JT_KEY)||"[]"); } catch { return []; } }
+function jtSave(rows){ localStorage.setItem(JT_KEY, JSON.stringify(rows)); }
+function jtTodayStr(){ return new Date().toISOString().slice(0,10); }
+function jtRender(){
+  const rows = jtLoad();
+  const body = document.getElementById("jtBody");
+  document.getElementById("jtCount").textContent = rows.length;
+  document.getElementById("jtEmpty").style.display = rows.length ? "none" : "block";
+  const today = jtTodayStr();
+  body.innerHTML = rows.map((r,i)=>{
+    const due = r.follow && r.follow <= today && r.status!=="Offer" && r.status!=="Rejected";
+    const bg = due ? "background:rgba(245,166,35,.12);" : "";
+    return `<tr style="border-top:1px solid var(--border);${bg}">
+      <td style="padding:8px">${escapeHtml(r.company)}</td>
+      <td style="padding:8px">${escapeHtml(r.role)}</td>
+      <td style="padding:8px">${escapeHtml(r.status)}</td>
+      <td style="padding:8px">${escapeHtml(r.follow||"")}${due?' <span class="pill bad" style="font-size:10px">due</span>':''}</td>
+      <td style="padding:8px;color:var(--muted)">${escapeHtml(r.added)}</td>
+      <td style="padding:8px"><button class="ghost jt-del" data-i="${i}" style="padding:3px 9px;font-size:12px">✕</button></td>
+    </tr>`;
+  }).join("");
+  body.querySelectorAll(".jt-del").forEach(b=>b.addEventListener("click", ()=>{
+    const rows = jtLoad(); rows.splice(+b.dataset.i,1); jtSave(rows); jtRender();
+  }));
+}
+document.getElementById("jtAddBtn").addEventListener("click", ()=>{
+  const company = document.getElementById("jtCompany").value.trim();
+  const role = document.getElementById("jtRole").value.trim();
+  if(!company || !role){ alert("Enter at least a company and role."); return; }
+  const rows = jtLoad();
+  rows.unshift({ company, role,
+    status: document.getElementById("jtStatus").value,
+    follow: document.getElementById("jtFollow").value.trim(),
+    added: jtTodayStr() });
+  jtSave(rows); jtRender();
+  document.getElementById("jtCompany").value = ""; document.getElementById("jtRole").value = ""; document.getElementById("jtFollow").value = "";
+});
+document.getElementById("jtClearBtn").addEventListener("click", ()=>{
+  if(confirm("Delete ALL tracked applications? This can't be undone.")){ jtSave([]); jtRender(); }
+});
+document.getElementById("jtExportBtn").addEventListener("click", ()=>{
+  const rows = jtLoad();
+  if(!rows.length){ alert("Nothing to export yet."); return; }
+  const esc = v => '"' + String(v||"").replace(/"/g,'""') + '"';
+  const csv = "Company,Role,Status,Follow-up,Added\n" +
+    rows.map(r=>[r.company,r.role,r.status,r.follow,r.added].map(esc).join(",")).join("\n");
+  const blob = new Blob([csv], {type:"text/csv"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = "job-applications.csv"; a.click();
+  URL.revokeObjectURL(a.href);
+});
+jtRender();
 </script>
 </body>
 </html>
